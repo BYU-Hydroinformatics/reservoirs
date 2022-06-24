@@ -546,12 +546,14 @@ function getForecast() {
               $('#forecast_chart').removeClass('hidden');
               $('#volume_chart').removeClass('hidden');
 
+                //water elevation
               var values_avg = result.avg;
               var values_se = result.se5;
               var values_max = result.max;
               var mydateTime =  result.date;
               // var init_elv = result.init_elv;
 
+                //volume
               var values_avg2 = result.avg2;
               var values_se2 = result.se52;
               var values_max2 = result.max2;
@@ -631,7 +633,7 @@ function getForecast() {
                 visible: 'legendonly'
               }
               var values_avg_trace2 = {
-                type: "bar",
+                type: "scatter",
                 name: 'Average StreamFlow Forecast',
                 mode: 'lines',
                 x: mydateTime,
@@ -641,7 +643,7 @@ function getForecast() {
                 // line: {color: '#17BECF'}
               }
               var values_se5_trace2 = {
-                type: "bar",
+                type: "scatter",
                 name: '75% StreamFlow Forecast',
                 x: mydateTime,
                 y: values_se2,
