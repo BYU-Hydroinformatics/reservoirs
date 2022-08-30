@@ -10,7 +10,7 @@ function getSiteInfoTable() {
 
     $.ajax({
     type: "GET",
-    url: "GetSiteInfo2/",
+    url: "GetSiteInfo/",
     dataType: "JSON",
     data: fsc,
 
@@ -100,11 +100,11 @@ $("#variables").on("change",function(){
 })
 
 var map = L.map('mapid', {
-    zoom: 8.25,
-    minZoom: 1.25,
+    zoom: 7.4,
+    minZoom: 1.20,
     boxZoom: true,
     maxBounds: L.latLngBounds(L.latLng(-100.0,-270.0), L.latLng(100.0, 270.0)),
-    center: [19, -70.6],
+    center: [-1.78, -78.7],
 });
 
 
