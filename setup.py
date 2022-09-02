@@ -2,7 +2,7 @@ from setuptools import setup, find_namespace_packages
 from tethys_apps.app_installation import find_resource_files
 
 # -- Apps Definition -- #
-app_package = 'reservoirs_ecuador'
+app_package = 'reservoirs'
 release_package = 'tethysapp-' + app_package
 
 # -- Python Dependencies -- #

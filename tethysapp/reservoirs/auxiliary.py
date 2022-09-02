@@ -13,7 +13,7 @@ from datetime import timedelta
 from scipy import integrate
 import calendar
 
-from .app import Reservoirs_ecuador as app
+from .app import Reservoirs as app
 
 
 def make_storagecapcitycurve(site_name_only):

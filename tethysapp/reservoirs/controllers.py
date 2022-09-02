@@ -19,7 +19,7 @@ from datetime import date
 from datetime import timedelta
 from scipy import integrate
 from .auxiliary import *
-from .app import Reservoirs_ecuador as app
+from .app import Reservoirs as app
 
 BASE_URL = app.get_custom_setting('Hydroser_Endpoint')
 @login_required()
@@ -55,7 +55,7 @@ def home(request):
         context = {
             'variables': variables,
         }
-        return render(request, 'reservoirs_ecuador/home.html', context)
+        return render(request, 'reservoirs/home.html', context)
 
     except Exception as e:
         print(e)
@@ -70,7 +70,7 @@ def home(request):
         context = {
             'variables': variables,
         }
-        return render(request, 'reservoirs_ecuador/home.html', context)
+        return render(request, 'reservoirs/home.html', context)
 
 
 

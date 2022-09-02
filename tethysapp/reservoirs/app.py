@@ -1,16 +1,16 @@
 from tethys_sdk.base import TethysAppBase, url_map_maker
 from tethys_sdk.app_settings import CustomSetting
 
-class Reservoirs_ecuador(TethysAppBase):
+class Reservoirs(TethysAppBase):
     """
-    Tethys app class for Reservoirs_ecuador."
+    Tethys app class for Reservoirs."
     """
 
     name = 'Reservoirs'
-    index = 'reservoirs_ecuador:home'
-    icon = 'reservoirs_ecuador/images/logo.jpg'
-    package = 'reservoirs_ecuador'
-    root_url = 'reservoirs_ecuador'
+    index = 'reservoirs:home'
+    icon = 'reservoirs/images/logo.jpg'
+    package = 'reservoirs'
+    root_url = 'reservoirs'
     color = '#008080'
     description = ''
     tags = ''
@@ -26,43 +26,43 @@ class Reservoirs_ecuador(TethysAppBase):
         url_maps = (
             UrlMap(
                 name='home',
-                url='reservoirs_ecuador',
-                controller='reservoirs_ecuador.controllers.home'
+                url='reservoirs',
+                controller='reservoirs.controllers.home'
             ),
             UrlMap(
                 name='getMySites',
                 url='getMySites/',
-                controller='reservoirs_ecuador.controllers.GetSites'
+                controller='reservoirs.controllers.GetSites'
             ),
             UrlMap(
                 name='GetSiteInfo',
                 url='GetSiteInfo/',
-                controller='reservoirs_ecuador.controllers.GetInfo'
+                controller='reservoirs.controllers.GetInfo'
             ),
             UrlMap(
                 name='GetSiteInfo2',
                 url='GetSiteInfo2/',
-                controller='reservoirs_ecuador.controllers.GetInfoReal'
+                controller='reservoirs.controllers.GetInfoReal'
             ),
             UrlMap(
                 name='GetValues',
                 url='GetValues/',
-                controller='reservoirs_ecuador.controllers.GetValues'
+                controller='reservoirs.controllers.GetValues'
             ),
             UrlMap(
                 name='GetForecast',
                 url='GetForecast/',
-                controller='reservoirs_ecuador.controllers.GetForecast'
+                controller='reservoirs.controllers.GetForecast'
             ),
             # UrlMap(
             #     name='getTimeSeries',
             #     url='getTimeSeries/',
-            #     controller='reservoirs_ecuador.controllers.getTimeSeries'
+            #     controller='reservoirs.controllers.getTimeSeries'
             # ),
             # UrlMap(
             #     name='getMonthlyAverage',
             #     url='getMonthlyAverage/',
-            #     controller='reservoirs_ecuador.controllers.getMonthlyAverage'
+            #     controller='reservoirs.controllers.getMonthlyAverage'
             # )
         )
 
