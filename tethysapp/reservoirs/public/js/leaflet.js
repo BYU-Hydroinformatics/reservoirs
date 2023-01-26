@@ -10,39 +10,43 @@ function getSiteInfoTable() {
 
     $.ajax({
     type: "GET",
-    url: "GetSiteInfo/",
+    url: "GetSiteInfo/", //pulling from GetInfo in controllers.py
     dataType: "JSON",
     data: fsc,
 
     success: function(result) {
       try{
-        // console.log(result)
-        var myInfo = result.siteInfo;
-        const myOtherSites = [];
+//        console.log(result.siteInfo)
+//        var myInfo = result.siteInfo;
+//        const myOtherSites = [];
 
-        if (myInfo['siteInfo'][0]['siteName'].includes("Presa") || myInfo['siteInfo'][0]['siteName'].includes("presa")) {
-            myOtherSites.push(myInfo);
-        }
+//        if (myInfo['siteInfo'][0]['siteName'].includes("Presa") || myInfo['siteInfo'][0]['siteName'].includes("presa")) {
+//            myOtherSites.push(myInfo);
+//        }
 
-        let myreservoir = $("#variables").val();
+        let mystation = $("#variables").val();
 
-        for (var i=0; i<myOtherSites.length; ++i) {
+//        for (var i=0; i<myOtherSites.length; ++i) {
+//
+//            if (mystation == i) { break; }
+//
+//                let MyGoodInfo = myOtherSites[i];
 
-            if (myreservoir == i) { break; }
-
-                let MyGoodInfo = myOtherSites[i];
-
-                var mysitename = MyGoodInfo.siteInfo[0].siteName;
-                var sitecode = MyGoodInfo.siteInfo[0].siteCode;
-                var citation = MyGoodInfo.siteInfo[0].citation;
-                var description = MyGoodInfo.siteInfo[0].description;
-                var variable = MyGoodInfo.siteInfo[0].variableName;
-                var latitude = MyGoodInfo.siteInfo[0].latitude;
-                var longitude = MyGoodInfo.siteInfo[0].longitude;
-                var beginDateTime = MyGoodInfo.siteInfo[0].beginDateTime;
-                var endDateTime = MyGoodInfo.siteInfo[0].endDateTime;
-
-        }
+        var mysitename = result['stn_id'];
+        var sitecode = result['station'];
+//                var citation = MyGoodInfo.siteInfo[0].citation; //this would be the corporation
+//                var description = MyGoodInfo.siteInfo[0].description;
+        var variable = result['var_id'];
+//                var latitude = MyGoodInfo.siteInfo[0].latitude;
+//                var longitude = MyGoodInfo.siteInfo[0].longitude;
+        var beginDateTime = result['start_date'];
+        var endDateTime = result['end_date'];
+        var recentDateTime = result['recent_date']
+        var recentValue = result['recent_val']
+        var minValue = result['min_val']
+        var maxValue = result['max_val']
+                //should I do the date for the max and min values?
+//        }
 
         $("#info_site_table").html(
 
@@ -51,41 +55,31 @@ function getSiteInfoTable() {
               <tbody>
                 <tr>
                   <td>Site Name</td>
-                  <td>${mysitename}</td>
+                  <td id="stn_id">${mysitename}</td>
                 </tr>
                 <tr>
                   <td>Site Code</td>
-                  <td>${sitecode}</td>
-                </tr>
-                <tr>
-                  <td>Organization</td>
-                  <td>${citation}</td>
-                </tr>
-                <tr>
-                  <td>Description</td>
-                  <td>${description}</td>
+                  <td id="site_code">${sitecode}</td>
                 </tr>
                 <tr>
                   <td>Active Variable</td>
                   <td>${variable}</td>
                 </tr>
                 <tr>
-                  <td>Geolocation</td>
-                  <td>${latitude} , ${longitude} </td>
-                </tr>
-                <tr>
                   <td>Beginning Date Time </td>
-                  <td>${beginDateTime.split("T")[0]} </td>
+                  <td id="start_date">${beginDateTime.split("T")[0]}</td>
                 </tr>
                 <tr>
                   <td>End Date Time </td>
-                  <td>${endDateTime.split("T")[0]} </td>
+                  <td id="end_date">${endDateTime.split("T")[0]}</td>
                 </tr>
               </tbody>
             </table>
           </div>`);
           $("#info_site_table").removeClass("hidden");
+          $("#info_site-loading").removeClass("hidden");
           $("#title-site").removeClass("hidden");
+          $("#timeseries").removeClass("hidden");
       }
       catch(e){
         console.log(e);
@@ -96,15 +90,18 @@ function getSiteInfoTable() {
 
 
 $("#variables").on("change",function(){
+  $("#info_site_table").addClass("hidden");
+  $("#timeseries").addClass("hidden");
+  $("#info_site-loading").addClass("hidden");
   getSiteInfoTable()
 })
 
 var map = L.map('mapid', {
-    zoom: 7.4,
+    zoom: 7.6,
     minZoom: 1.20,
     boxZoom: true,
     maxBounds: L.latLngBounds(L.latLng(-100.0,-270.0), L.latLng(100.0, 270.0)),
-    center: [-1.78, -78.7],
+    center: [18.7357, -70.1627],
 });
 
 
@@ -112,7 +109,7 @@ var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest
 var Esri_Imagery_Labels = L.esri.basemapLayer('ImageryLabels');
 basemaps = {"Basemap": L.layerGroup([Esri_WorldImagery, Esri_Imagery_Labels]).addTo(map)}
 
-
+//base graph
 var getSitesNow = function(){
     $.ajax({
         type: "GET",
@@ -122,52 +119,45 @@ var getSitesNow = function(){
         success: function(result) {
           try{
             var damIcon = L.icon({
-                iconUrl:'https://img.icons8.com/color/48/000000/dam.png',
-                shadowUrl:'https://img.icons8.com/color/48/000000/dam.png',
+                iconUrl:'https://img.icons8.com/color/344/dam.png',
+                shadowUrl:'https://img.icons8.com/color/344/dam.png',
 
-                iconSize:[35, 35], // size of the icon
+                iconSize:[40, 40], // size of the icon
                 shadowSize:[35, 35], // size of the shadow
             });
             var mySites = result.siteInfo;
-            const myGoodSites = [];
-
-//           console.log(mySites);
-
+            console.log(mySites)
             for(var i=0; i< mySites.length; ++i){
-                if (mySites[i]['sitename'].includes("Presa") || mySites[i]['sitename'].includes("presa")) {
-                    myGoodSites.push(mySites[i]);
-                }}
-
-            for(var i=0; i< myGoodSites.length; ++i){
-                var markerLocation = new L.LatLng(myGoodSites[i]['latitude'], myGoodSites[i]['longitude']);
-                var marker = new L.Marker(markerLocation,{icon: damIcon})
-                marker.bindPopup(myGoodSites[i]['sitename']);
-                map.addLayer(marker)
+                if (mySites[i][2]!='none') {
+                    var markerLocation = new L.LatLng(mySites[i][2], mySites[i][3]);
+                    var marker = new L.Marker(markerLocation,{icon: damIcon})
+                    marker.bindPopup(mySites[i][0]);
+                    map.addLayer(marker)
+                }
             }
 
             $("#variables").change(function() {
-
                 let curres = $("#variables").val()
                 id = curres
                 var markers = [];
 
-                if (id == "none") {
-                    map.fitBounds(L.latLngBounds(L.latLng(20.178299, -72.084407), L.latLng(17.609021, -68.267347)))
+                if (id == 0) {
+                    map.fitBounds(L.latLngBounds(L.latLng(-100.0,-270.0), L.latLng(100.0, 270.0)))
                 } else {
-                    for (var i=0; i<myGoodSites.length; ++i) {
+                    for (var i=0; i<mySites.length; ++i) {
 
-                        var markerLocation = new L.LatLng(myGoodSites[i]['latitude'], myGoodSites[i]['longitude']);
+                        var markerLocation = new L.LatLng(mySites[i][2], mySites[i][3]);
                         var marker = new L.Marker(markerLocation,{icon: damIcon});
-                        marker.bindPopup(myGoodSites[i]['sitename']);
+                        marker.bindPopup(mySites[i][0]);
                         map.addLayer(marker)
                         markers.push(marker)
 
-                        if (id == myGoodSites[i]['fullSiteCode']) {
+                        if (id == mySites[i][1]) {
                             map.setView(markerLocation, 10);
 
 
                             for (var j in markers){
-                                if (markers[j]._popup._content == myGoodSites[i]['sitename']){
+                                if (markers[j]._popup._content == mySites[i][0]){
                                     markers[j].openPopup()
                                 }
                             }
@@ -191,16 +181,21 @@ function getValues() {
     $('#error_ts').addClass('hidden');
     $('#myDiv').addClass('hidden');
     let site_full_code = $("#variables").val();
+    let stn_id = $("#stn_id").text();
+    let start_date = $("#start_date").text();
+    let end_date = $("#end_date").text();
     let fsc = {
-        full_code: site_full_code
+        'site_code': site_full_code,
+        'start_date': start_date,
+        'end_date': end_date,
+        'stn_id': stn_id
     }
-
+//    console.log(fsc)
     $.ajax({
         type: "GET",
-        url: "GetValues",
+        url: "get-values/",
         dataType: "JSON",
         data: fsc,
-
         success: function(result) {
 
             // Plotly.purge('myDiv')
@@ -209,15 +204,15 @@ function getValues() {
               $('#error_ts').addClass('hidden');
               $('#myDiv').removeClass('hidden');
 
-              var values = result.myvalues;
-              specific_values = values[0]['values'];
-              sitename = values[0]['values'][0]['siteName']
+
+              var values = result['myvalues'];
+              sitename = values[0]['Station'];
               const mydatavalues = [];
               const mydateTime = [];
 
-              for(var i=0; i<specific_values.length; ++i){
-                  mydatavalues.push(specific_values[i]['dataValue']);
-                  mydateTime.push(specific_values[i]['dateTime'])
+              for(var i=0; i<values.length; ++i){
+                  mydatavalues.push(values[i]['Value']);
+                  mydateTime.push(values[i]['Date'])
               }
 
               $("#ts_button").on("click",function(){
@@ -284,65 +279,79 @@ function getValues() {
 
 }
 
-function getSiteInfo() {
+function getValues2() {
   try{
-    $("#info_site-loading").removeClass("hidden");
-    $("#container_tabs_info").addClass("hidden");
-    $("#error_info").addClass("hidden");
-    let full_site_code = $("#variables").val();
-    let site_full_name = $("#variables option:selected").text();
-
+    $('#mytimeseries-loading').removeClass('hidden');
+    $('#error_ts').addClass('hidden');
+    $('#myDiv').addClass('hidden');
+    let site_full_code = $("#variables").val();
+    let stn_id = $("#stn_id").text();
+    let start_date = $("#start_date").text();
+    let end_date = $("#end_date").text();
     let fsc = {
-      full_code: full_site_code,
-      site_name: site_full_name
+        'site_code': site_full_code,
+        'start_date': start_date,
+        'end_date': end_date,
+        'stn_id': stn_id
     }
+
     $.ajax({
-    type: "GET",
-    url: "GetSiteInfo/",
-    dataType: "JSON",
-    data: fsc,
+        type: "GET",
+        url: "get-values/",
+        dataType: "JSON",
+        data: fsc,
+        success: function(result) {
+          try{
 
-    success: function(result) {
-      try{
-        $("#error_info").addClass("hidden");
-        $("#container_tabs_info").removeClass("hidden");
-        // console.log(result)
-        var storage_capacity = result.values_sc;
-        var elvs = storage_capacity.map(function (i) { return i[1]})
-        var vols = storage_capacity.map(function (i) { return i[0]})
-        var historical_data = result.values_hist;
+            $("#error_info").addClass("hidden");
+            $("#container_tabs_info").removeClass("hidden");
 
-        var date_hist = historical_data.map(function (i) { return i[0]})
-        var elv_hist = historical_data.map(function (i) { return i[1]})
-        // elv_hist = elv_hist.map( function (i) { if(i<0){return 0} });
-        for(let i=0; i < elv_hist.length; ++i ){
-          if(elv_hist[i] < 0 ){
-            elv_hist[i] = 0;
-          }
+            var values = result['myvalues'];
+            sitename = values[0]['Station'];
+            const mydatavalues = [];
+            const mydateTime = [];
 
-        }
-        var min_vals_hist = Array(date_hist.length).fill(result.minimum);
-        var max_vals_hist = Array(date_hist.length).fill(result.maximum);
-        let sc_element = document.getElementById("sc_button");
-        $("#sc_button").click(function(){
-          dm(elvs,vols,"CMC","M","Storage_Capacity_Curve");
-        })
-        $("#hist_button").click(function(){
-          dm(date_hist,elv_hist,"M","Time","Historical_Data");
-        })
+            for(var i=0; i<values.length; ++i){
+                mydatavalues.push(values[i]['Value']);
+                mydateTime.push(values[i]['Date'])
+            }
 
-        let myreservoir = $("#variables").val();
+            var storage_capacity = result.values_sc;
+            var elvs = storage_capacity.map(function (i) { return i[1]})
+            var vols = storage_capacity.map(function (i) { return i[0]})
+            historical_data = mydatavalues
+
+            var date_hist = historical_data.map(function (i) { return i[0]})
+            var elv_hist = historical_data.map(function (i) { return i[1]})
+            // elv_hist = elv_hist.map( function (i) { if(i<0){return 0} });
+            for(let i=0; i < elv_hist.length; ++i ){
+              if(elv_hist[i] < 0 ){
+                elv_hist[i] = 0;
+              }
+
+            }
+            var min_vals_hist = Array(date_hist.length).fill(result.minimum);
+            var max_vals_hist = Array(date_hist.length).fill(result.maximum);
+            let sc_element = document.getElementById("sc_button");
+            $("#sc_button").click(function(){
+              dm(elvs,vols,"CMC","M","Storage_Capacity_Curve");
+            })
+            $("#hist_button").click(function(){
+              dm(date_hist,elv_hist,"M","Time","Historical_Data");
+            })
+
+            let myreservoir = $("#variables").val();
 
 
-        var sc_max_trace = {
-          type: "scatter",
-          name: 'Niveles Reportados',
-          x: elvs,
-          y: vols,
-          fill: 'tozeroy',
-          mode: 'lines',
-        }
-        var data = [sc_max_trace];
+            var sc_max_trace = {
+              type: "scatter",
+              name: 'Niveles Reportados',
+              x: elvs,
+              y: vols,
+              fill: 'tozeroy',
+              mode: 'lines',
+            }
+            var data = [sc_max_trace];
 
         var layout = {
             title: 'Storage Capacity Curve',
@@ -747,7 +756,7 @@ function load_timeseries() {
     let myreservoir = $("#variables").val();
 
 
-    if (myreservoir === 'none') {
+    if (myreservoir === 0) {
 
         alert("You have not selected a reservoir");
 
@@ -755,9 +764,9 @@ function load_timeseries() {
       $("#presa_name").html(`${$("#variables option:selected").text()}`)
         // $("#siteinfo").html('');
         // $("#mytimeseries").html('');
-        getSiteInfo();
+        getValues2();
         getValues();
-        getForecast();
+//        getForecast();
 
         $("#obsgraph").modal('show');
     }

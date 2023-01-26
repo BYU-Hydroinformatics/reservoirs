@@ -13,6 +13,7 @@ from tethys_sdk.workspaces import app_workspace
 import numpy as np
 import json
 import pandas as pd
+import requests
 import geoglows
 import datetime
 from datetime import date
@@ -29,27 +30,25 @@ def home(request):
     Controller for the app home page.
     """
 
-    # url = "http://128.187.106.131/app/index.php/dr/services/cuahsi_1_1.asmx?WSDL"
+    url_request_base = 'http://ec2-18-204-193-247.compute-1.amazonaws.com:5000/API'
+
+    response = requests.get(f'{url_request_base}/stations')
+    stations_dict = response.json()
+    df = pd.DataFrame.from_dict(stations_dict)
+
     try:
-        water = pwml.WaterMLOperations(url=BASE_URL)
-        sites = water.GetSites()
-        df_sites = pd.DataFrame.from_dict(sites)
-        site_name = df_sites['sitename']
-        site_fullcode = df_sites['fullSiteCode']
-        sites_presa = [('Select a Reservoir ...', 'none')]
-
-
-        for sn, sf in zip(site_name, site_fullcode):
-            if 'Presa' in sn:
-                reservoir = (sn, sf)
-                sites_presa.append(reservoir)
+        sites_name = [('None', 0)]
+        for index, row in df.iterrows():
+            if 'Presa' in row['StationName']:
+                info = row['StationName'], row['Station']
+                sites_name.append(info)
 
         variables = SelectInput(
             display_text='',
             name='variables',
             multiple=False,
             original=True,
-            options=tuple(sites_presa)
+            options=tuple(sites_name)
         )
 
         context = {
@@ -76,12 +75,27 @@ def home(request):
 
 def GetSites(request):
 
-    return_object = {}
-    # url = "http://128.187.106.131/app/index.php/dr/services/cuahsi_1_1.asmx?WSDL"
-    water = pwml.WaterMLOperations(url=BASE_URL)
-    sites = water.GetSites()
-    return_object['siteInfo'] = sites
+    url_request_base = 'http://ec2-18-204-193-247.compute-1.amazonaws.com:5000/API'
 
+    response = requests.get(f'{url_request_base}/stations')
+    response2 = requests.get(f'{url_request_base}/availability')
+    availability_dict = response2.json()
+    stations_dict = response.json()
+    df = pd.DataFrame.from_dict(stations_dict)
+    df2 = pd.DataFrame.from_dict(availability_dict)
+    return_object = {}
+
+    sites_info = [('None', 0, 'none', 'none', 0, 0)]
+    # list of longitude and latitude of stations
+    for index, row in df.iterrows():
+        for index, row2 in df2.iterrows():
+            if 'Presa' in row['StationName']:
+                if row['StationName'] in row2['Station']:
+                    info1 = row['StationName'], row['Station'], row['Latitude2'], row['Longitude2'], row2['StrtDate'], row2['EndDate']
+                    sites_info.append(info1)
+
+    return_object['siteInfo']=sites_info
+    print(return_object)
     return JsonResponse(return_object)
 
 # def getMonthlyAverage(request):
@@ -106,7 +120,7 @@ def GetSites(request):
 #     sites = water.GetSites()
 def GetInfoReal(request):
     return_object = {}
-
+#no changes made to this, I don't think I need it
     fullsitecode = request.GET.get("full_code")
     site_name = request.GET.get("site_name")
     # myvalues = []
@@ -122,49 +136,102 @@ def GetInfoReal(request):
 def GetInfo(request):
     return_object = {}
     try:
+
+        url_request_base = 'http://ec2-18-204-193-247.compute-1.amazonaws.com:5000/API'
+        response = requests.get(f'{url_request_base}/stations')
+        response2 = requests.get(f'{url_request_base}/availability')
+        stations_dict = response.json()
+        availability_dict = response2.json()
+        df2 = pd.DataFrame.from_dict(availability_dict)
+        df = pd.DataFrame.from_dict(stations_dict)
+
         fullsitecode = request.GET.get("full_code")
-        site_name = request.GET.get("site_name")
-        # print(site_name)
-        site_name_only = site_name.split(' ')[-1]
+        stn_id = request.GET.get("site_name")
+        var_id = 'Level4'
 
-        wlh_json_file_path = os.path.join(app.get_app_workspace().path, 'waterLevel_hist.json')
+        df_new = df2[df2['Station'].isin([stn_id])]
+        df_new2 = df[df['Station'].isin([stn_id])]
 
-        with open(wlh_json_file_path) as f:
-            wlh_data_reservoir = json.load(f)
+        min_val = df_new2['MinLevelSta'].tolist()[0]
+        max_val = df_new2['MaxLevelSta'].tolist()[0]
 
-        data_site = wlh_data_reservoir[site_name]
-        historical = get_historicaldata(site_name_only)['values']
+        date_ini = df_new['StrtDate'].tolist()[0]
+        date_end = df_new['EndDate'].tolist()[0]
 
-        for i in range(len(historical)):
-            historical[i][1] -= data_site['ymin']         # change the values from elevations to depths
-        return_object['values_hist'] = historical
+        response = requests.get(
+            f'{url_request_base}/data/dailydata?stn_id={stn_id}&var_id={var_id}&date_ini={date_ini}&date_end={date_end}')  # Make a GET request to the URL
 
-        min = data_site['minlvl'] - data_site['ymin']         # lines for the min/max levels
-        max = data_site['maxlvl'] - data_site['ymin']
-        firstday = historical[0][0]
-        lastday = historical[len(historical)-1][0]
-        return_object['minimum'] = min
-        return_object['maximum'] = max
-        last_elv = wlh_data_reservoir[site_name]['dataValue']
-        return_object['last_elv'] = last_elv
-        avg_elevations = get_historicalaverages(site_name_only)
-        return_object['el_um'] = avg_elevations['elevacion_um']
-        return_object['el_ua'] = avg_elevations['elevacion_ua']
-        # return_object['minimum'] = [[firstday, min], [lastday, min]]
-        # return_object['maximum'] = [[firstday, max], [lastday, max]]
+        # Print status code (and associated text)
+        # Print data returned (parsing as JSON)
+        dailydata_dict = response.json()
+        # Parse `response.text` into JSON
+        df = pd.DataFrame.from_dict(dailydata_dict)
 
-        values_sc = make_storagecapcitycurve(site_name_only)
-        volumes_info = get_reservoir_volumes(site_name_only,data_site,last_elv)
-        # mysiteinfo = []
-        # myvalues = []
-        # url = "http://128.187.106.131/app/index.php/dr/services/cuahsi_1_1.asmx?WSDL"
-        # water = pwml.WaterMLOperations(url=BASE_URL)
+        x_values = []
+        y_values = []
 
-        # mysiteinfo.append(water.GetSiteInfo(fullsitecode))
+        for index, row in df.iterrows():
+            x_values.append(row['Date'])
+            y_values.append(row['Value'])
 
-        # return_object['siteInfo'] = mysiteinfo
-        return_object['values_sc'] = values_sc
-        return_object['volumes'] = volumes_info
+        recent_val = y_values[-1]
+        recent_date = x_values[-1]
+
+        start_date = min(x_values)
+        end_date = max(x_values)
+
+        return_object['stn_id']=stn_id
+        return_object['station']=fullsitecode
+        return_object['var_id']=var_id
+        return_object['min_level']=min_val
+        return_object['max_level'] = max_val
+        return_object['start_date']=start_date
+        return_object['end_date'] = end_date
+        return_object['recent_val'] = recent_val
+        return_object['recent_date'] = recent_date
+        # fullsitecode = request.GET.get("full_code")
+        # site_name = request.GET.get("site_name")
+        # # print(site_name)
+        # site_name_only = site_name.split(' ')[-1]
+        #
+        # wlh_json_file_path = os.path.join(app.get_app_workspace().path, 'waterLevel_hist.json')
+        #
+        # with open(wlh_json_file_path) as f:
+        #     wlh_data_reservoir = json.load(f)
+        #
+        # data_site = wlh_data_reservoir[site_name]
+        # historical = get_historicaldata(site_name_only)['values']
+        #
+        # for i in range(len(historical)):
+        #     historical[i][1] -= data_site['ymin']         # change the values from elevations to depths
+        # return_object['values_hist'] = historical
+        #
+        # min = data_site['minlvl'] - data_site['ymin']         # lines for the min/max levels
+        # max = data_site['maxlvl'] - data_site['ymin']
+        # firstday = historical[0][0]
+        # lastday = historical[len(historical)-1][0]
+        # return_object['minimum'] = min
+        # return_object['maximum'] = max
+        # last_elv = wlh_data_reservoir[site_name]['dataValue']
+        # return_object['last_elv'] = last_elv
+        # avg_elevations = get_historicalaverages(site_name_only)
+        # return_object['el_um'] = avg_elevations['elevacion_um']
+        # return_object['el_ua'] = avg_elevations['elevacion_ua']
+        # # return_object['minimum'] = [[firstday, min], [lastday, min]]
+        # # return_object['maximum'] = [[firstday, max], [lastday, max]]
+        #
+        # values_sc = make_storagecapcitycurve(site_name_only)
+        # volumes_info = get_reservoir_volumes(site_name_only,data_site,last_elv)
+        # # mysiteinfo = []
+        # # myvalues = []
+        # # url = "http://128.187.106.131/app/index.php/dr/services/cuahsi_1_1.asmx?WSDL"
+        # # water = pwml.WaterMLOperations(url=BASE_URL)
+        #
+        # # mysiteinfo.append(water.GetSiteInfo(fullsitecode))
+        #
+        # # return_object['siteInfo'] = mysiteinfo
+        # return_object['values_sc'] = values_sc
+        # return_object['volumes'] = volumes_info
     except Exception as e:
         print(e)
         return_object['error'] = "The site does not have historical data information."
@@ -174,23 +241,38 @@ def GetValues(request):
     return_object = {}
 
     try:
-        fullsitecode = request.GET.get("full_code")
-        mysiteinfo = []
-        myvalues = []
-        # url = "http://128.187.106.131/app/index.php/dr/services/cuahsi_1_1.asmx?WSDL"
-        water = pwml.WaterMLOperations(url=BASE_URL)
+        url_request_base = 'http://ec2-18-204-193-247.compute-1.amazonaws.com:5000/API'
 
-        mysiteinfo.append(water.GetSiteInfo(fullsitecode))
+        date_ini = request.GET.get("start_date")
+        date_end = request.GET.get("end_date")
 
-        start_date = mysiteinfo[0]['siteInfo'][0]['beginDateTime']
-        end_date = mysiteinfo[0]['siteInfo'][0]['endDateTime']
-        variable_full_code = 'RES-EL'
-        values_x = water.GetValues(fullsitecode, variable_full_code, start_date, end_date)
-        myvalues.append(values_x)
-        timeStamps = []
-        valuesTimeSeries = []
+        stn_id = request.GET.get("stn_id")
+        var_id = 'Level4'
+        request_final_url = f'{url_request_base}/data/dailydata?stn_id={stn_id}&var_id={var_id}&date_ini={date_ini}&date_end={date_end}'
+        response = requests.get(request_final_url)
+        # breakpoint()
+        dailydata_dict = response.json()
+        # Parse `response.text` into JSON
+        df = pd.DataFrame.from_dict(dailydata_dict)
+        return_object['myvalues']=df.to_dict('records')
 
-        return_object['myvalues'] = myvalues
+        # fullsitecode = request.GET.get("full_code")
+        # mysiteinfo = []
+        # myvalues = []
+        # # url = "http://128.187.106.131/app/index.php/dr/services/cuahsi_1_1.asmx?WSDL"
+        # water = pwml.WaterMLOperations(url=BASE_URL)
+        #
+        # mysiteinfo.append(water.GetSiteInfo(fullsitecode))
+        #
+        # start_date = mysiteinfo[0]['siteInfo'][0]['beginDateTime']
+        # end_date = mysiteinfo[0]['siteInfo'][0]['endDateTime']
+        # variable_full_code = 'RES-EL'
+        # values_x = water.GetValues(fullsitecode, variable_full_code, start_date, end_date)
+        # myvalues.append(values_x)
+        # timeStamps = []
+        # valuesTimeSeries = []
+        #
+        # return_object['myvalues'] = myvalues
     except Exception as e:
         return_object['error'] = "There is no historical water level data available for this site."
 
