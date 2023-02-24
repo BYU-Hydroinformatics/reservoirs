@@ -3,13 +3,14 @@ from tethys_sdk.permissions import login_required
 from tethys_sdk.gizmos import Button
 import pywaterml.waterML as pwml
 from django.http import JsonResponse, HttpResponse
+from tethys_sdk.workspaces import app_workspace
 from django.shortcuts import render
 from tethys_sdk.gizmos import SelectInput, RangeSlider
 from tethys_sdk.permissions import login_required
 import numpy as np
 import json
+from tethys_sdk.routing import controller
 import os
-from tethys_sdk.workspaces import app_workspace
 import numpy as np
 import json
 import pandas as pd
@@ -24,6 +25,8 @@ from .app import Reservoirs as app
 
 BASE_URL = app.get_custom_setting('Hydroser_Endpoint')
 @login_required()
+
+@controller(name='home', url='reservoirs')
 def home(request):
 
     """
@@ -73,8 +76,10 @@ def home(request):
 
 
 
-def GetSites(request):
+@controller(name='GetSites', url='reservoirs/GetSites', app_workspace=True)
+def GetSites(request, app_workspace):
 
+    aw_path=app_workspace.path
     url_request_base = 'http://ec2-18-204-193-247.compute-1.amazonaws.com:5000/API'
 
     response = requests.get(f'{url_request_base}/stations')
@@ -85,7 +90,7 @@ def GetSites(request):
     df2 = pd.DataFrame.from_dict(availability_dict)
     return_object = {}
 
-    sites_info = [('None', 0, 'none', 'none', 0, 0)]
+    sites_info = [('None', 'none', 0, 0, 0, 0)]
     # list of longitude and latitude of stations
     for index, row in df.iterrows():
         for index, row2 in df2.iterrows():
@@ -93,9 +98,7 @@ def GetSites(request):
                 if row['StationName'] in row2['Station']:
                     info1 = row['StationName'], row['Station'], row['Latitude2'], row['Longitude2'], row2['StrtDate'], row2['EndDate']
                     sites_info.append(info1)
-
     return_object['siteInfo']=sites_info
-    print(return_object)
     return JsonResponse(return_object)
 
 # def getMonthlyAverage(request):
@@ -127,12 +130,13 @@ def GetInfoReal(request):
     # url = "http://128.187.106.131/app/index.php/dr/services/cuahsi_1_1.asmx?WSDL"
     water = pwml.WaterMLOperations(url=BASE_URL)
 
-    info_site = water.GetSiteInfo(fullsitecode)
+    info_site = water.GetInfo(fullsitecode)
 
     return_object['siteInfo'] = info_site
 
     return JsonResponse(return_object)
 
+@controller(name='GetInfo', url='reservoirs/GetInfo')
 def GetInfo(request):
     return_object = {}
     try:
@@ -157,7 +161,7 @@ def GetInfo(request):
 
         date_ini = df_new['StrtDate'].tolist()[0]
         date_end = df_new['EndDate'].tolist()[0]
-
+        p
         response = requests.get(
             f'{url_request_base}/data/dailydata?stn_id={stn_id}&var_id={var_id}&date_ini={date_ini}&date_end={date_end}')  # Make a GET request to the URL
 
@@ -227,7 +231,7 @@ def GetInfo(request):
         # # url = "http://128.187.106.131/app/index.php/dr/services/cuahsi_1_1.asmx?WSDL"
         # # water = pwml.WaterMLOperations(url=BASE_URL)
         #
-        # # mysiteinfo.append(water.GetSiteInfo(fullsitecode))
+        # # mysiteinfo.append(water.GetInfo(fullsitecode))
         #
         # # return_object['siteInfo'] = mysiteinfo
         # return_object['values_sc'] = values_sc
@@ -237,6 +241,7 @@ def GetInfo(request):
         return_object['error'] = "The site does not have historical data information."
     return JsonResponse(return_object)
 
+@controller(name='GetValues', url='reservoirs/GetValues')
 def GetValues(request):
     return_object = {}
 
@@ -262,7 +267,7 @@ def GetValues(request):
         # # url = "http://128.187.106.131/app/index.php/dr/services/cuahsi_1_1.asmx?WSDL"
         # water = pwml.WaterMLOperations(url=BASE_URL)
         #
-        # mysiteinfo.append(water.GetSiteInfo(fullsitecode))
+        # mysiteinfo.append(water.GetInfo(fullsitecode))
         #
         # start_date = mysiteinfo[0]['siteInfo'][0]['beginDateTime']
         # end_date = mysiteinfo[0]['siteInfo'][0]['endDateTime']
@@ -278,6 +283,7 @@ def GetValues(request):
 
     return JsonResponse(return_object)
 
+@controller(name='GetForecast', url='reservoir/GetForecast')
 def GetForecast(request):
     return_object = {}
     rating_curves_file_path = os.path.join(app.get_app_workspace().path, 'rating_curves_DR.xlsx')

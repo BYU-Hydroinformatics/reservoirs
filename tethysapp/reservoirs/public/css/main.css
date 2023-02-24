@@ -132,7 +132,7 @@ html, body {
   padding: 0;
 }
 
-.hidden {
+.d-none {
   display: none;
 }
 
