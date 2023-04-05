@@ -42,8 +42,8 @@ def home(request):
     try:
         sites_name = [('None', 0)]
         for index, row in df.iterrows():
-            if 'Presa' in row['StationName']:
-                info = row['StationName'], row['Station']
+            if 'Presa' in row['Station']:
+                info = row['Station'], row['StationName']
                 sites_name.append(info)
 
         variables = SelectInput(
@@ -94,11 +94,11 @@ def GetSites(request, app_workspace):
     # list of longitude and latitude of stations
     for index, row in df.iterrows():
         for index, row2 in df2.iterrows():
-            if 'Presa' in row['StationName']:
-                if row['StationName'] in row2['Station']:
-                    info1 = row['StationName'], row['Station'], row['Latitude2'], row['Longitude2'], row2['StrtDate'], row2['EndDate']
+            if 'Presa' in row['Station']:
+                if row['Station'] in row2['Station']:
+                    info1 = row['Station'], row['StationName'], row['Latitude2'], row['Longitude2'], row2['StrtDate'], row2['EndDate']
                     sites_info.append(info1)
-    return_object['siteInfo']=sites_info
+    return_object['siteInfo'] = sites_info
     return JsonResponse(return_object)
 
 # def getMonthlyAverage(request):
@@ -136,8 +136,8 @@ def GetInfoReal(request):
 
     return JsonResponse(return_object)
 
-@controller(name='GetInfo', url='reservoirs/GetInfo')
-def GetInfo(request):
+@controller(name='GetInfo', url='reservoirs/GetInfo', app_workspace = True)
+def GetInfo(request, app_workspace):
     return_object = {}
     try:
 
@@ -155,13 +155,12 @@ def GetInfo(request):
 
         df_new = df2[df2['Station'].isin([stn_id])]
         df_new2 = df[df['Station'].isin([stn_id])]
-
         min_val = df_new2['MinLevelSta'].tolist()[0]
         max_val = df_new2['MaxLevelSta'].tolist()[0]
 
         date_ini = df_new['StrtDate'].tolist()[0]
         date_end = df_new['EndDate'].tolist()[0]
-        p
+
         response = requests.get(
             f'{url_request_base}/data/dailydata?stn_id={stn_id}&var_id={var_id}&date_ini={date_ini}&date_end={date_end}')  # Make a GET request to the URL
 
@@ -394,7 +393,6 @@ def GetForecast(request):
         #volume to elevation
 
 
-        # print(presa_rc_elev)
         elevations_max =[]
         elevations_75 =[]
         elevations_avg =[]
@@ -403,11 +401,7 @@ def GetForecast(request):
             lookup_max = min(range(len(presa_rc_vol)), key=lambda i: abs(presa_rc_vol[i]-(init_vol_r + volume_max/1000000)))
             lookup_75 = min(range(len(presa_rc_vol)), key=lambda i: abs(presa_rc_vol[i]-(init_vol_r + volume_75/1000000)))
             lookup_avg = min(range(len(presa_rc_vol)), key=lambda i: abs(presa_rc_vol[i]-(init_vol_r + volume_avg/1000000)))
-            # print(abs(presa_rc_vol[0]-(volume_max/1000000)),lookup_max)
-            # print(lookup_max, volume_max/1000000,init_vol_r,)
-            # print(lookup_75, volume_75/1000000,init_vol_r)
-            # print(lookup_avg, volume_avg/1000000,init_vol_r)
-            # print(presa_rc_vol)
+
 
             matching_elev_max = presa_rc_elev[lookup_max]
             matching_elev_75 = presa_rc_elev[lookup_75]

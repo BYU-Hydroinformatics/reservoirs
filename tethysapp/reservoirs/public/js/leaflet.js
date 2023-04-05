@@ -31,7 +31,6 @@ function getInfoTable() {
 //            if (mystation == i) { break; }
 //
 //                let MyGoodInfo = myOtherSites[i];
-
         var mysitename = result['stn_id'];
         var sitecode = result['station'];
 //                var citation = MyGoodInfo.siteInfo[0].citation; //this would be the corporation
@@ -153,7 +152,6 @@ var getSitesNow = function(){
                         marker.bindPopup(mySites[i][0]);
                         map.addLayer(marker)
                         markers.push(marker)
-                        console.log(id)
                         if (id == mySites[i][1]) {
                             map.setView(markerLocation, 10);
                             for (var j in markers){
