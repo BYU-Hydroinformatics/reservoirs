@@ -3,12 +3,13 @@
 {% load static %}
 
 {% block header_buttons %}
+<i class="bi bi-home"></i>
   <div class="header-button glyphicon-button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Help">
-    <a data-bs-toggle="modal" data-bs-target="#help-modal"><span class="glyphicon glyphicon-question-sign"></span></a>
+    <a data-bs-toggle="modal" data-bs-target="#help-modal"><i class="bi bi-question-lg"></i></a>
   </div>
 
  <div class="header-button glyphicon-button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="View Graph">
-    <a data-bs-toggle="modal" data-bs-target="#obsgraph"><span class="glyphicon glyphicon-globe"></span></a>
+    <a data-bs-toggle="modal" data-bs-target="#obsgraph"><i class="bi bi-bar-chart-fill"></i></a>
   </div>
 
 <!--  <div class="header-button glyphicon-button" data-toggle="tooltip" data-placement="bottom" title="Help">-->
@@ -43,13 +44,13 @@
 <!--</body>-->
   <!----Observed Data ----->
   <div class="modal fade" id="obsgraph" tabindex="-1" role="dialog" aria-labelledby="about-modal-label">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-xl" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <div id="thinkpa">
-            <h3 id="presa_name"></h3>
-            <button id="close_button"type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          </div>
+            <div id="thinkpa">
+              <h3 id="presa_name"></h3>
+            </div>
+            <button id="close_button" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           <div class="row">
             <div id="station-info" class="col-md-8"></div>
             <div class="col-md-4">
@@ -62,10 +63,18 @@
         <div class="modal-body">
           <!-- Nav tabs -->
           <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active"><a id="siteinfo_tab_link" href="#siteinfo" aria-controls="siteinfo" role="tab" data-bs-toggle="tab">Site Information</a></li>
-            <li role="presentation"><a id="mytimeseries_tab_link" href="#mytimeseries" aria-controls="mytimeseries" role="tab" data-bs-toggle="tab">Historical Water Level</a></li>
-            <li role="presentation"><a id="volumechart_tab_link" href="#volumechart" aria-controls="volumechart" role="tab" data-bs-toggle="tab">Forecast Volume</a></li>
-            <li role="presentation"><a id="forecast_tab_link" href="#forecastchart" aria-controls="forecastchart" role="tab" data-bs-toggle="tab">Forecast Elevation</a></li>
+            <li role="tab" class="active">
+              <a class = "nav-link active" id="siteinfo_tab_link" href="#siteinfo" aria-controls="siteinfo" role="tab" data-bs-toggle="tab">Site Information</a>
+            </li>
+            <li role="tab">
+              <a class = "nav-link" id="mytimeseries_tab_link" href="#mytimeseries" aria-controls="mytimeseries" role="tab" data-bs-toggle="tab">Historical Water Level</a>
+            </li>
+            <li role="tab">
+              <a class = "nav-link active" id="volumechart_tab_link" href="#volumechart" aria-controls="volumechart" role="tab" data-bs-toggle="tab">Forecast Volume</a>
+            </li>
+            <li role="tab">
+              <a class = "nav-link active" id="forecast_tab_link" href="#forecastchart" aria-controls="forecastchart" role="tab" data-bs-toggle="tab">Forecast Elevation</a>
+            </li>
           </ul>
           <!-- Tab panes -->
           <div class="tab-content" id = "tabs-id">
@@ -83,15 +92,12 @@
                           <div class ="card col-sm-8">
                             <div id="site_sc_chart"></div>
                           </div>
-                          <div id="site_info_ta" class="col-sm-4">
-
-                          </div>
+                          <div id="site_info_ta" class="col-sm-4"></div>
                         </div>
                       </div>
                       <div class="button_class_l">
                         <button id="sc_button" type="button" class="btn btn-success" name="button"> Download Data </button>
                       </div>
-
                     </div>
                     <div class="row">
                       <div class=col-sm-8">
@@ -99,18 +105,14 @@
                           <div class ="card col-sm-8">
                             <div id="site_hist_chart"></div>
                           </div>
-                          <div id="site_info_ta2" class="col-sm-4">
-
-                          </div>
+                          <div id="site_info_ta2" class="col-sm-4"></div>
                         </div>
                       </div>
                       <div class="button_class_l">
                         <button id="hist_button" type="button" class="btn btn-success" name="button"> Download Data </button>
                       </div>
                     </div>
-
                   </div>
-
                 </div>
               </div>
             </div>
@@ -169,7 +171,7 @@
           <h5 class="modal-title" id="help-modal-label">Reservoirs DR</h5>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
           <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
         </div>
       </div>

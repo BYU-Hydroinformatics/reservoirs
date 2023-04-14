@@ -121,26 +121,11 @@ def GetSites(request, app_workspace):
 #     url = "http://128.187.106.131/app/index.php/dr/services/cuahsi_1_1.asmx?WSDL"
 #     water = pwml.WaterMLOperations(url=url)
 #     sites = water.GetSites()
-def GetInfoReal(request):
-    return_object = {}
-#no changes made to this, I don't think I need it
-    fullsitecode = request.GET.get("full_code")
-    site_name = request.GET.get("site_name")
-    # myvalues = []
-    # url = "http://128.187.106.131/app/index.php/dr/services/cuahsi_1_1.asmx?WSDL"
-    water = pwml.WaterMLOperations(url=BASE_URL)
-
-    info_site = water.GetInfo(fullsitecode)
-
-    return_object['siteInfo'] = info_site
-
-    return JsonResponse(return_object)
 
 @controller(name='GetInfo', url='reservoirs/GetInfo', app_workspace = True)
 def GetInfo(request, app_workspace):
     return_object = {}
     try:
-
         url_request_base = 'http://ec2-18-204-193-247.compute-1.amazonaws.com:5000/API'
         response = requests.get(f'{url_request_base}/stations')
         response2 = requests.get(f'{url_request_base}/availability')
@@ -243,15 +228,16 @@ def GetInfo(request, app_workspace):
 @controller(name='GetValues', url='reservoirs/GetValues')
 def GetValues(request):
     return_object = {}
-
+    print('i was run')
     try:
         url_request_base = 'http://ec2-18-204-193-247.compute-1.amazonaws.com:5000/API'
 
         date_ini = request.GET.get("start_date")
         date_end = request.GET.get("end_date")
-
         stn_id = request.GET.get("stn_id")
         var_id = 'Level4'
+
+        print(stn_id)
         request_final_url = f'{url_request_base}/data/dailydata?stn_id={stn_id}&var_id={var_id}&date_ini={date_ini}&date_end={date_end}'
         response = requests.get(request_final_url)
         # breakpoint()

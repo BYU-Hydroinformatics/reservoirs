@@ -26,11 +26,6 @@ function getInfoTable() {
 
         let mystation = $("#variables").val();
 
-//        for (var i=0; i<myOtherSites.length; ++i) {
-//
-//            if (mystation == i) { break; }
-//
-//                let MyGoodInfo = myOtherSites[i];
         var mysitename = result['stn_id'];
         var sitecode = result['station'];
 //                var citation = MyGoodInfo.siteInfo[0].citation; //this would be the corporation
@@ -183,19 +178,17 @@ function getValues() {
     let start_date = $("#start_date").text();
     let end_date = $("#end_date").text();
     let fsc = {
-        'site_code': site_full_code,
+        'site_code': site_full_code, //stationname
         'start_date': start_date,
         'end_date': end_date,
-        'stn_id': stn_id
+        'stn_id': stn_id //station (actual full name)
     }
-//    console.log(fsc)
     $.ajax({
         type: "GET",
-        url: "get-values/",
+        url: "GetValues/",
         dataType: "JSON",
         data: fsc,
         success: function(result) {
-
             // Plotly.purge('myDiv')
             $('#mytimeseries-loading').addClass('d-none');
             if(!result.hasOwnProperty('error')){
@@ -204,7 +197,7 @@ function getValues() {
 
 
               var values = result['myvalues'];
-              sitename = values[0]['Station'];
+              sitename = stn_id;
               const mydatavalues = [];
               const mydateTime = [];
 
@@ -249,6 +242,7 @@ function getValues() {
                   },
                   autosize:true
               };
+
               Plotly.newPlot('myDiv', data, layout);
               window.onresize = function() {
                   Plotly.relayout('myDiv', {
@@ -263,7 +257,7 @@ function getValues() {
               $("#error_ts").html(`${result['error']}`)
             }
         },
-        error: function(er){
+        error: function(e){
           $('#mytimeseries-loading').addClass('d-none');
           $('#error_ts').addClass('d-none');
         }
@@ -295,7 +289,7 @@ function getValues2() {
 
     $.ajax({
         type: "GET",
-        url: "get-values/",
+        url: "GetValues",
         dataType: "JSON",
         data: fsc,
         success: function(result) {
@@ -818,18 +812,32 @@ $('#volumechart_tab_link').click(function(){
 })
 $('#siteinfo_tab_link').click(function(){
   try{
+  var site_sc_chart = document.getElementById("site_sc_chart");
+  if (site_sc_chart !== null) {
     Plotly.Plots.resize("site_sc_chart");
-    Plotly.relayout("site_sc_chart", {
-        'xaxis.autorange': true,
-        'yaxis.autorange': true
+    Plotly.update("site_sc_chart", {
+        layout: {
+            xaxis: {
+                autorange: true
+            },
+            yaxis: {
+                autorange: true
+              }
+         }
     });
     Plotly.Plots.resize("site_hist_chart");
-    Plotly.relayout("site_hist_chart", {
-        'xaxis.autorange': true,
-        'yaxis.autorange': true
+    Plotly.update("site_hist_chart", {
+        layout: {
+            xaxis: {
+                autorange: true
+            },
+            yaxis: {
+                autorange: true
+              }
+         }
     });
   }
-  catch(e){
+  } catch(e){
     console.log(e);
   }
 })
