@@ -222,14 +222,14 @@ def getForecast(request):
 
     with open(wlh_json_file_path) as f:
         wlh_data_reservoir = json.load(f)
-
-    df_rc = pd.DataFrame({'volume_rc': rating_curves[f'{site_name_only}_Vol_MCM'].tolist(),'elevation_rc': rating_curves[f'{site_name_only}_Elev_m'].tolist()})
-    volume_datetime = [0]*15
-    daily_vtotal_max = [0]*15
-    daily_vtotal_75 = [0]*15
-    daily_vtotal_avg = [0]*15
-
     try:
+
+        df_rc = pd.DataFrame({'volume_rc': rating_curves[f'{site_name_only}_Vol_MCM'].tolist(),'elevation_rc': rating_curves[f'{site_name_only}_Elev_m'].tolist()})
+        volume_datetime = [0]*15
+        daily_vtotal_max = [0]*15
+        daily_vtotal_75 = [0]*15
+        daily_vtotal_avg = [0]*15
+
         for id in stream_data_reservoir[site_name]:
             df = geoglows.streamflow.forecast_stats(id, 'csv')
             df_max = df["flow_max_m^3/s"].dropna()
