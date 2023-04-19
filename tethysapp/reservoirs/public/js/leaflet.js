@@ -7,79 +7,68 @@ function getInfoTable() {
       full_code: full_site_code,
       site_name: site_full_name
     }
+    if (site_full_name !== "None") {
+        $.ajax({
+        type: "GET",
+        url: "GetInfo/",
+        dataType: "JSON",
+        data: fsc,
 
-    $.ajax({
-    type: "GET",
-    url: "GetInfo/",
-    dataType: "JSON",
-    data: fsc,
+        success: function(result) {
+          try{
+            let mystation = $("#variables").val();
+            var mysitename = result['stn_id'];
+            var sitecode = result['station'];
+            var variable = result['var_id'];
+            var beginDateTime = result['start_date'];
+            var endDateTime = result['end_date'];
+            var recentDateTime = result['recent_date']
+            var recentValue = result['recent_val']
+            var minValue = result['min_val']
+            var maxValue = result['max_val']
+            $("#info_table-loading").removeClass("d-none");
+            $("#info_site_table").html(
 
-    success: function(result) {
-      try{
-//        console.log(result.siteInfo)
-//        var myInfo = result.siteInfo;
-//        const myOtherSites = [];
-
-//        if (myInfo['siteInfo'][0]['siteName'].includes("Presa") || myInfo['siteInfo'][0]['siteName'].includes("presa")) {
-//            myOtherSites.push(myInfo);
-//        }
-
-        let mystation = $("#variables").val();
-
-        var mysitename = result['stn_id'];
-        var sitecode = result['station'];
-//                var citation = MyGoodInfo.siteInfo[0].citation; //this would be the corporation
-//                var description = MyGoodInfo.siteInfo[0].description;
-        var variable = result['var_id'];
-//                var latitude = MyGoodInfo.siteInfo[0].latitude;
-//                var longitude = MyGoodInfo.siteInfo[0].longitude;
-        var beginDateTime = result['start_date'];
-        var endDateTime = result['end_date'];
-        var recentDateTime = result['recent_date']
-        var recentValue = result['recent_val']
-        var minValue = result['min_val']
-        var maxValue = result['max_val']
-                //should I do the date for the max and min values?
-//        }
-
-        $("#info_site_table").html(
-
-          `<div class="table-responsive">
-            <table class="table">
-              <tbody>
-                <tr>
-                  <td>Site Name</td>
-                  <td id="stn_id">${mysitename}</td>
-                </tr>
-                <tr>
-                  <td>Site Code</td>
-                  <td id="site_code">${sitecode}</td>
-                </tr>
-                <tr>
-                  <td>Active Variable</td>
-                  <td>${variable}</td>
-                </tr>
-                <tr>
-                  <td>Beginning Date Time </td>
-                  <td id="start_date">${beginDateTime.split("T")[0]}</td>
-                </tr>
-                <tr>
-                  <td>End Date Time </td>
-                  <td id="end_date">${endDateTime.split("T")[0]}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>`);
-          $("#info_site_table").removeClass("d-none");
-          $("#info_site-loading").removeClass("d-none");
-          $("#title-site").removeClass("d-none");
-          $("#timeseries").removeClass("d-none");
-      }
-      catch(e){
-        console.log(e);
-      }
-    }
-  })
+              `<div class="table-responsive">
+                <table class="table">
+                  <tbody>
+                    <tr>
+                      <td>Site Name</td>
+                      <td id="stn_id">${mysitename}</td>
+                    </tr>
+                    <tr>
+                      <td>Site Code</td>
+                      <td id="site_code">${sitecode}</td>
+                    </tr>
+                    <tr>
+                      <td>Active Variable</td>
+                      <td>${variable}</td>
+                    </tr>
+                    <tr>
+                      <td>Beginning Date Time </td>
+                      <td id="start_date">${beginDateTime.split("T")[0]}</td>
+                    </tr>
+                    <tr>
+                      <td>End Date Time </td>
+                      <td id="end_date">${endDateTime.split("T")[0]}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>`);
+              $("#info_site_table").removeClass("d-none");
+              $("#info_site-loading").removeClass("d-none");
+              $("#title-site").removeClass("d-none");
+              $("#timeseries").removeClass("d-none");
+              $("#info_table-loading").addClass("d-none");
+          }
+          catch(e){
+            console.log(e);
+          }
+        }
+      })
+  } else {
+    $("#info_table-loading").addClass("d-none");
+  }
 }
 
 
@@ -87,6 +76,7 @@ $("#variables").on("change",function(){
   $("#info_site_table").addClass("d-none");
   $("#timeseries").addClass("d-none");
   $("#info_site-loading").addClass("d-none");
+  $("#info_table-loading").removeClass("d-none");
   getInfoTable()
 })
 
@@ -123,9 +113,7 @@ var getSitesNow = function(){
 
             for(var i=0; i< mySites.length; ++i){
                 if (mySites[i][2]!=0) {
-//                    map.fitBounds(L.LatlngBounds(L.latLng(-100.0,-270.0), L.latLng(100.0, 270.0)))
-                //can I change this so that either the lat long its referring to will make the map just center on the DR,
-                //or make it so that maybe it's just lat long bounds at the center
+
                     var markerLocation = new L.LatLng(mySites[i][2], mySites[i][3]);
                     var marker = new L.Marker(markerLocation,{icon: damIcon})
                     marker.bindPopup(mySites[i][0]);
@@ -140,6 +128,7 @@ var getSitesNow = function(){
                 if (id == 0) {
                     var base_view = new L.latLng(18.993036, -70.507958)
                     map.setView(base_view, 8)
+                    map.closePopup()
                 } else {
                     for (var i=0; i<mySites.length; ++i) {
                         var markerLocation = new L.LatLng(mySites[i][2], mySites[i][3]);
@@ -173,8 +162,6 @@ function getValues() {
     $('#mytimeseries-loading').removeClass('d-none');
     $('#error_ts').addClass('d-none');
     $('#myDiv').addClass('d-none');
-//    $('#volume_chart').addClass('d-none');
-//    $('#forecast_chart').addClass('d-none');
     let site_full_code = $("#variables").val();
     let stn_id = $("#stn_id").text();
     let start_date = $("#start_date").text();
@@ -191,7 +178,7 @@ function getValues() {
         dataType: "JSON",
         data: fsc,
         success: function(result) {
-            // Plotly.purge('myDiv')
+
             $('#mytimeseries-loading').addClass('d-none');
             if(!result.hasOwnProperty('error')){
               $('#error_ts').addClass('d-none');
@@ -279,8 +266,6 @@ function getValues2() {
     $('#mytimeseries-loading').removeClass('d-none');
     $('#error_ts').addClass('d-none');
     $('#myDiv').addClass('d-none');
-//    $('#volume_chart').addClass('d-none');
-//    $('#forecast_chart').addClass('d-none');
     let site_full_code = $("#variables").val();
     let stn_id = $("#stn_id").text();
     let start_date = $("#start_date").text();

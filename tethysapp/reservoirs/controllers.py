@@ -101,27 +101,6 @@ def GetSites(request, app_workspace):
     return_object['siteInfo'] = sites_info
     return JsonResponse(return_object)
 
-# def getMonthlyAverage(request):
-#
-#     url = "http://128.187.106.131/app/index.php/dr/services/cuahsi_1_1.asmx?WSDL"
-#     water = pwml.WaterMLOperations(url=url)
-#     m_avg = water.GetMonthlyAverage(None, site_full_code, variable_full_code, start_date, end_date)
-#
-#     data = {'Months': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-#             'Monthly Average': m_avg,
-#             }
-#     return_object = pd.DataFrame(data, columns=['Months', 'Monthly Average'])
-#
-#     return JsonResponse(return_object)
-#
-#
-# def getTimeSeries(request):
-#
-#     return_object = {}
-#     url = "http://128.187.106.131/app/index.php/dr/services/cuahsi_1_1.asmx?WSDL"
-#     water = pwml.WaterMLOperations(url=url)
-#     sites = water.GetSites()
-
 @controller(name='GetInfo', url='reservoirs/GetInfo', app_workspace = True)
 def GetInfo(request, app_workspace):
     return_object = {}

@@ -10,6 +10,11 @@
 #timeseries{
   margin-top: 10px;
 }
+
+#info_table-loading {
+    display: flex;
+}
+
 /* .tab-content > .tab-pane,
 .pill-content > .pill-pane {
   display: block;
