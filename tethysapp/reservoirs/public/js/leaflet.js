@@ -26,7 +26,6 @@ function getInfoTable() {
             var recentValue = result['recent_val']
             var minValue = result['min_val']
             var maxValue = result['max_val']
-            $("#info_table-loading").removeClass("d-none");
             $("#info_site_table").html(
 
               `<div class="table-responsive">
@@ -59,7 +58,7 @@ function getInfoTable() {
               $("#info_site-loading").removeClass("d-none");
               $("#title-site").removeClass("d-none");
               $("#timeseries").removeClass("d-none");
-              $("#info_table-loading").addClass("d-none");
+              $("#info_table-loading").removeClass("d-none");
           }
           catch(e){
             console.log(e);
@@ -67,7 +66,7 @@ function getInfoTable() {
         }
       })
   } else {
-    $("#info_table-loading").addClass("d-none");
+    $("#info_table-loading").removeClass("d-none");
   }
 }
 
@@ -76,7 +75,7 @@ $("#variables").on("change",function(){
   $("#info_site_table").addClass("d-none");
   $("#timeseries").addClass("d-none");
   $("#info_site-loading").addClass("d-none");
-  $("#info_table-loading").removeClass("d-none");
+  $("#info_table-loading").addClass("d-none");
   getInfoTable()
 })
 

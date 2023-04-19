@@ -156,49 +156,7 @@ def GetInfo(request, app_workspace):
         return_object['end_date'] = end_date
         return_object['recent_val'] = recent_val
         return_object['recent_date'] = recent_date
-        # fullsitecode = request.GET.get("full_code")
-        # site_name = request.GET.get("site_name")
 
-        # site_name_only = site_name.split(' ')[-1]
-        #
-        # wlh_json_file_path = os.path.join(app.get_app_workspace().path, 'waterLevel_hist.json')
-        #
-        # with open(wlh_json_file_path) as f:
-        #     wlh_data_reservoir = json.load(f)
-        #
-        # data_site = wlh_data_reservoir[site_name]
-        # historical = get_historicaldata(site_name_only)['values']
-        #
-        # for i in range(len(historical)):
-        #     historical[i][1] -= data_site['ymin']         # change the values from elevations to depths
-        # return_object['values_hist'] = historical
-        #
-        # min = data_site['minlvl'] - data_site['ymin']         # lines for the min/max levels
-        # max = data_site['maxlvl'] - data_site['ymin']
-        # firstday = historical[0][0]
-        # lastday = historical[len(historical)-1][0]
-        # return_object['minimum'] = min
-        # return_object['maximum'] = max
-        # last_elv = wlh_data_reservoir[site_name]['dataValue']
-        # return_object['last_elv'] = last_elv
-        # avg_elevations = get_historicalaverages(site_name_only)
-        # return_object['el_um'] = avg_elevations['elevacion_um']
-        # return_object['el_ua'] = avg_elevations['elevacion_ua']
-        # # return_object['minimum'] = [[firstday, min], [lastday, min]]
-        # # return_object['maximum'] = [[firstday, max], [lastday, max]]
-        #
-        # values_sc = make_storagecapcitycurve(site_name_only)
-        # volumes_info = get_reservoir_volumes(site_name_only,data_site,last_elv)
-        # # mysiteinfo = []
-        # # myvalues = []
-        # # url = "http://128.187.106.131/app/index.php/dr/services/cuahsi_1_1.asmx?WSDL"
-        # # water = pwml.WaterMLOperations(url=BASE_URL)
-        #
-        # # mysiteinfo.append(water.GetInfo(fullsitecode))
-        #
-        # # return_object['siteInfo'] = mysiteinfo
-        # return_object['values_sc'] = values_sc
-        # return_object['volumes'] = volumes_info
     except Exception as e:
         print(e)
         return_object['error'] = "The site does not have historical data information."
