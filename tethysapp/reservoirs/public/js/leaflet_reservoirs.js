@@ -247,23 +247,6 @@ function getValues() {
                   });
               };
 
-              var update = {
-                width: 800, // or any new width
-                height: 500 // " "
-              };
-                
-              Plotly.relayout('myDiv', update);
-
-              // setTimeout(function(){
-              //   Plotly.Plots.resize($("#myDiv .js-plotly-plot")[0]);
-              //   Plotly.relayout($("#myDiv .js-plotly-plot")[0], {
-              //     'xaxis.autorange': true,
-              //     'yaxis.autorange': true
-              //   });
-              // },300)
-              
-
-
             }
             else{
               $('#error_ts').removeClass('d-none');
