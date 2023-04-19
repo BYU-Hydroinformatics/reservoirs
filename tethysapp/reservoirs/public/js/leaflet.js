@@ -173,6 +173,8 @@ function getValues() {
     $('#mytimeseries-loading').removeClass('d-none');
     $('#error_ts').addClass('d-none');
     $('#myDiv').addClass('d-none');
+//    $('#volume_chart').addClass('d-none');
+//    $('#forecast_chart').addClass('d-none');
     let site_full_code = $("#variables").val();
     let stn_id = $("#stn_id").text();
     let start_date = $("#start_date").text();
@@ -194,6 +196,8 @@ function getValues() {
             if(!result.hasOwnProperty('error')){
               $('#error_ts').addClass('d-none');
               $('#myDiv').removeClass('d-none');
+              $('#volume_chart').removeClass('d-none');
+              $('#forecast_chart').removeClass('d-none');
 
 
               var values = result['myvalues'];
@@ -268,7 +272,6 @@ function getValues() {
     $('#mytimeseries-loading').addClass('d-none');
     $('#error_ts').addClass('d-none');
   }
-
 }
 
 function getValues2() {
@@ -276,17 +279,18 @@ function getValues2() {
     $('#mytimeseries-loading').removeClass('d-none');
     $('#error_ts').addClass('d-none');
     $('#myDiv').addClass('d-none');
+//    $('#volume_chart').addClass('d-none');
+//    $('#forecast_chart').addClass('d-none');
     let site_full_code = $("#variables").val();
     let stn_id = $("#stn_id").text();
     let start_date = $("#start_date").text();
     let end_date = $("#end_date").text();
     let fsc = {
-        'site_code': site_full_code,
+        'site_code': site_full_code, //stationname
         'start_date': start_date,
         'end_date': end_date,
-        'stn_id': stn_id
+        'stn_id': stn_id //station (actual full name)
     }
-
     $.ajax({
         type: "GET",
         url: "GetValues",
@@ -517,27 +521,23 @@ function getValues2() {
 }
 
 function getForecast() {
-
     $('#fe-loading').removeClass('d-none');
     $('#fv-loading').removeClass('d-none');
     $('#error_vol').addClass('d-none');
     $('#error_fore').addClass('d-none');
     $('#forecast_chart').addClass('d-none');
     $('#volume_chart').addClass('d-none');
-    let site_full_name = $("#variables option:selected").text();
+    let site_full_name = $('#stn_id').text();
     let fsc = {
-        site_name: site_full_name
+        'site_name': site_full_name
     }
-
     $.ajax({
         type: "GET",
-        url: "GetForecast",
+        url: "getForecast",
         dataType: "JSON",
         data: fsc,
-
         success: function(result) {
           try{
-            // console.log(result);
             $('#fe-loading').addClass('d-none');
             $('#fv-loading').addClass('d-none');
 
@@ -758,7 +758,7 @@ function load_timeseries() {
         // $("#mytimeseries").html('');
         getValues2();
         getValues();
-//        getForecast();
+        getForecast();
 
         $("#obsgraph").modal('show');
     }
@@ -780,8 +780,6 @@ $('#forecast_tab_link').click(function(){
   catch(e){
     console.log(e);
   }
-
-
 })
 
 $('#mytimeseries_tab_link').click(function(){
@@ -795,8 +793,8 @@ $('#mytimeseries_tab_link').click(function(){
   catch(e){
     console.log(e);
   }
-
 })
+
 $('#volumechart_tab_link').click(function(){
   try{
     Plotly.Plots.resize("volume_chart");
@@ -810,34 +808,36 @@ $('#volumechart_tab_link').click(function(){
   }
 
 })
-$('#siteinfo_tab_link').click(function(){
-  try{
-  var site_sc_chart = document.getElementById("site_sc_chart");
-  if (site_sc_chart !== null) {
-    Plotly.Plots.resize("site_sc_chart");
-    Plotly.update("site_sc_chart", {
+$('#siteinfo_tab_link').click(function() {
+  try {
+    var site_sc_chart = document.getElementById("site_sc_chart");
+    if (site_sc_chart !== null) {
+      Plotly.update("site_sc_chart", {
         layout: {
+          xaxis: {
+            autorange: true
+          },
+          yaxis: {
+            autorange: true
+          }
+        }
+      });
+
+      var site_hist_chart = document.getElementById("site_hist_chart");
+      if (site_hist_chart !== null) {
+        Plotly.update("site_hist_chart", {
+          layout: {
             xaxis: {
-                autorange: true
+              autorange: true
             },
             yaxis: {
-                autorange: true
-              }
-         }
-    });
-    Plotly.Plots.resize("site_hist_chart");
-    Plotly.update("site_hist_chart", {
-        layout: {
-            xaxis: {
-                autorange: true
-            },
-            yaxis: {
-                autorange: true
-              }
-         }
-    });
-  }
-  } catch(e){
+              autorange: true
+            }
+          }
+        });
+      }
+    }
+  } catch (e) {
     console.log(e);
   }
 })

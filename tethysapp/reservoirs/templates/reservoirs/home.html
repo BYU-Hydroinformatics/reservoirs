@@ -37,7 +37,7 @@
 
 
 <head>
-  <script src='https://cdn.plot.ly/plotly-2.3.0.min.js'></script>
+  <script src='https://cdn.plot.ly/plotly-latest.min.js' charset="utf-8"></script>
 </head>
 <!--<body>-->
 <!--  <div id="myDiv"></div>-->
@@ -63,17 +63,17 @@
         <div class="modal-body">
           <!-- Nav tabs -->
           <ul class="nav nav-tabs" role="tablist">
-            <li role="tab" class="active">
-              <a class = "nav-link active" id="siteinfo_tab_link" href="#siteinfo" aria-controls="siteinfo" role="tab" data-bs-toggle="tab">Site Information</a>
+<!--            <li role="tab" class="active">-->
+<!--              <a class = "nav-link" id="siteinfo_tab_link" href="#siteinfo" aria-controls="siteinfo" role="tab" data-bs-toggle="tab">Site Information</a>-->
+<!--            </li>-->
+            <li role="tab">
+              <a class = "nav-link active" id="mytimeseries_tab_link" href="#mytimeseries" aria-controls="mytimeseries" role="tab" data-bs-toggle="tab">Historical Water Level</a>
             </li>
             <li role="tab">
-              <a class = "nav-link" id="mytimeseries_tab_link" href="#mytimeseries" aria-controls="mytimeseries" role="tab" data-bs-toggle="tab">Historical Water Level</a>
+              <a class = "nav-link" id="volumechart_tab_link" href="#volumechart" aria-controls="volumechart" role="tab" data-bs-toggle="tab">Forecast Volume</a>
             </li>
             <li role="tab">
-              <a class = "nav-link active" id="volumechart_tab_link" href="#volumechart" aria-controls="volumechart" role="tab" data-bs-toggle="tab">Forecast Volume</a>
-            </li>
-            <li role="tab">
-              <a class = "nav-link active" id="forecast_tab_link" href="#forecastchart" aria-controls="forecastchart" role="tab" data-bs-toggle="tab">Forecast Elevation</a>
+              <a class = "nav-link" id="forecast_tab_link" href="#forecastchart" aria-controls="forecastchart" role="tab" data-bs-toggle="tab">Forecast Elevation</a>
             </li>
           </ul>
           <!-- Tab panes -->
@@ -83,7 +83,6 @@
                 <div class="panel-body">
                   <div class="flex-container-row"><img id="info_site-loading" class="view-file hidden" src="{% static 'reservoirs/images/loader.gif' %}" /></div>
                   <div id="error_info" class= "hidden">
-
                   </div>
                   <div id= "container_tabs_info" class="container-fluid">
                     <div class="row">

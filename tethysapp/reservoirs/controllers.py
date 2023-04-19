@@ -179,7 +179,7 @@ def GetInfo(request, app_workspace):
         return_object['recent_date'] = recent_date
         # fullsitecode = request.GET.get("full_code")
         # site_name = request.GET.get("site_name")
-        # # print(site_name)
+
         # site_name_only = site_name.split(' ')[-1]
         #
         # wlh_json_file_path = os.path.join(app.get_app_workspace().path, 'waterLevel_hist.json')
@@ -228,7 +228,6 @@ def GetInfo(request, app_workspace):
 @controller(name='GetValues', url='reservoirs/GetValues')
 def GetValues(request):
     return_object = {}
-    print('i was run')
     try:
         url_request_base = 'http://ec2-18-204-193-247.compute-1.amazonaws.com:5000/API'
 
@@ -237,7 +236,6 @@ def GetValues(request):
         stn_id = request.GET.get("stn_id")
         var_id = 'Level4'
 
-        print(stn_id)
         request_final_url = f'{url_request_base}/data/dailydata?stn_id={stn_id}&var_id={var_id}&date_ini={date_ini}&date_end={date_end}'
         response = requests.get(request_final_url)
         # breakpoint()
@@ -268,16 +266,17 @@ def GetValues(request):
 
     return JsonResponse(return_object)
 
-@controller(name='GetForecast', url='reservoir/GetForecast')
-def GetForecast(request):
+@controller(name='getForecast', url='reservoirs/getForecast')
+def getForecast(request):
+
     return_object = {}
     rating_curves_file_path = os.path.join(app.get_app_workspace().path, 'rating_curves_DR.xlsx')
     rating_curves = pd.read_excel(rating_curves_file_path)
 
     site_name = request.GET.get("site_name")
-    # print(site_name)
+
     site_name_only = site_name.split(' ')[-1]
-    # print(site_name_only)
+
     streams_json_file_path = os.path.join(app.get_app_workspace().path, 'streams.json')
     wlh_json_file_path = os.path.join(app.get_app_workspace().path, 'waterLevel_hist.json')
 
@@ -361,13 +360,11 @@ def GetForecast(request):
 
         presa_rc_vol = df_rc['volume_rc']
         presa_rc_elev = df_rc['elevation_rc']
-        # print(presa_rc_vol)
+
         init_elv_r = wlh_data_reservoir[site_name]['dataValue']
         lookup_iv = min(range(len(presa_rc_elev)), key=lambda i: abs(presa_rc_elev[i]-init_elv_r))
-        # print(len(presa_rc_elev))
-        # print(lookup_iv)
+
         init_vol_r = presa_rc_vol[lookup_iv]
-        # print(init_elv_r)
 
         return_object['max2'] = [x + (init_vol_r * 1000000)  for x in daily_vtotal_max]
         return_object['se52'] = [x + (init_vol_r * 1000000)  for x in daily_vtotal_75]
@@ -382,7 +379,7 @@ def GetForecast(request):
         elevations_max =[]
         elevations_75 =[]
         elevations_avg =[]
-        # print(daily_vtotal_max)
+
         for volume_max, volume_75, volume_avg in zip(daily_vtotal_max,daily_vtotal_75,daily_vtotal_avg):
             lookup_max = min(range(len(presa_rc_vol)), key=lambda i: abs(presa_rc_vol[i]-(init_vol_r + volume_max/1000000)))
             lookup_75 = min(range(len(presa_rc_vol)), key=lambda i: abs(presa_rc_vol[i]-(init_vol_r + volume_75/1000000)))
@@ -392,12 +389,12 @@ def GetForecast(request):
             matching_elev_max = presa_rc_elev[lookup_max]
             matching_elev_75 = presa_rc_elev[lookup_75]
             matching_elev_avg = presa_rc_elev[lookup_avg]
-            # print(matching_elev_max,matching_elev_75,matching_elev_avg)
+
             elevations_max.append(matching_elev_max)
             elevations_75.append(matching_elev_75)
             elevations_avg.append(matching_elev_avg)
 
-        # print(elevations_max)
+
         return_object['max'] = elevations_max
         return_object['se5'] = elevations_75
         return_object['avg'] = elevations_avg
