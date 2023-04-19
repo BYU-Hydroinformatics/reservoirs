@@ -1,5 +1,5 @@
 function getInfoTable() {
-
+    $("#info_table-loading").removeClass("d-none");
     let full_site_code = $("#variables").val();
     let site_full_name = $("#variables option:selected").text();
 
@@ -58,15 +58,16 @@ function getInfoTable() {
               $("#info_site-loading").removeClass("d-none");
               $("#title-site").removeClass("d-none");
               $("#timeseries").removeClass("d-none");
-              $("#info_table-loading").removeClass("d-none");
+              $("#info_table-loading").addClass("d-none");
           }
           catch(e){
             console.log(e);
+            $("#info_table-loading").addClass("d-none");
           }
         }
       })
   } else {
-    $("#info_table-loading").removeClass("d-none");
+    $("#info_table-loading").addClass("d-none");
   }
 }
 
@@ -94,6 +95,7 @@ basemaps = {"Basemap": L.layerGroup([Esri_WorldImagery, Esri_Imagery_Labels]).ad
 
 //base graph
 var getSitesNow = function(){
+  $("#info_table-loading").removeClass("d-none");
     $.ajax({
         type: "GET",
         url: "GetSites/",
@@ -149,8 +151,13 @@ var getSitesNow = function(){
           }
           catch(e){
             console.log(e);
+            $("#info_table-loading").addClass("d-none");
           }
-
+          $("#info_table-loading").addClass("d-none");
+         },
+         error: function(e){
+          console.log(e)
+          $("#info_table-loading").addClass("d-none");
          }
     })
 }
@@ -178,7 +185,6 @@ function getValues() {
         data: fsc,
         success: function(result) {
 
-            $('#mytimeseries-loading').addClass('d-none');
             if(!result.hasOwnProperty('error')){
               $('#error_ts').addClass('d-none');
               $('#myDiv').removeClass('d-none');
@@ -240,12 +246,31 @@ function getValues() {
                       'yaxis.autorange': true
                   });
               };
+
+              var update = {
+                width: 800, // or any new width
+                height: 500 // " "
+              };
+                
+              Plotly.relayout('myDiv', update);
+
+              // setTimeout(function(){
+              //   Plotly.Plots.resize($("#myDiv .js-plotly-plot")[0]);
+              //   Plotly.relayout($("#myDiv .js-plotly-plot")[0], {
+              //     'xaxis.autorange': true,
+              //     'yaxis.autorange': true
+              //   });
+              // },300)
+              
+
+
             }
             else{
               $('#error_ts').removeClass('d-none');
               $('#myDiv').addClass('d-none');
               $("#error_ts").html(`${result['error']}`)
             }
+            $('#mytimeseries-loading').addClass('d-none');
         },
         error: function(e){
           $('#mytimeseries-loading').addClass('d-none');
@@ -740,11 +765,11 @@ function load_timeseries() {
       $("#presa_name").html(`${$("#variables option:selected").text()}`)
         // $("#siteinfo").html('');
         // $("#mytimeseries").html('');
-        getValues2();
+        // getValues2();
+        $("#obsgraph").modal('show');
         getValues();
         getForecast();
 
-        $("#obsgraph").modal('show');
     }
 }
 
