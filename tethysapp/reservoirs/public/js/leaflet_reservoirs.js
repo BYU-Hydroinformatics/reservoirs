@@ -26,34 +26,40 @@ function getInfoTable() {
             var recentValue = result['recent_val']
             var minValue = result['min_val']
             var maxValue = result['max_val']
-            $("#info_site_table").html(
+            if (!result.hasOwnProperty('error')){
+              $("#info_site_table").html(
 
-              `<div class="table-responsive">
-                <table class="table">
-                  <tbody>
-                    <tr>
-                      <td>Site Name</td>
-                      <td id="stn_id">${mysitename}</td>
-                    </tr>
-                    <tr>
-                      <td>Site Code</td>
-                      <td id="site_code">${sitecode}</td>
-                    </tr>
-                    <tr>
-                      <td>Active Variable</td>
-                      <td>${variable}</td>
-                    </tr>
-                    <tr>
-                      <td>Beginning Date Time </td>
-                      <td id="start_date">${beginDateTime.split("T")[0]}</td>
-                    </tr>
-                    <tr>
-                      <td>End Date Time </td>
-                      <td id="end_date">${endDateTime.split("T")[0]}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>`);
+                `<div class="table-responsive">
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <td>Site Name</td>
+                        <td id="stn_id">${mysitename}</td>
+                      </tr>
+                      <tr>
+                        <td>Site Code</td>
+                        <td id="site_code">${sitecode}</td>
+                      </tr>
+                      <tr>
+                        <td>Active Variable</td>
+                        <td>${variable}</td>
+                      </tr>
+                      <tr>
+                        <td>Beginning Date Time </td>
+                        <td id="start_date">${beginDateTime.split("T")[0]}</td>
+                      </tr>
+                      <tr>
+                        <td>End Date Time </td>
+                        <td id="end_date">${endDateTime.split("T")[0]}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>`);
+            }
+            else{
+              $("#info_site_table").html(result['error'])
+            }
+
               $("#info_site_table").removeClass("d-none");
               $("#info_site-loading").removeClass("d-none");
               $("#title-site").removeClass("d-none");
