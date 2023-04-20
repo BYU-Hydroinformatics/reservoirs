@@ -194,8 +194,8 @@ function getValues() {
             if(!result.hasOwnProperty('error')){
               $('#error_ts').addClass('d-none');
               $('#myDiv').removeClass('d-none');
-              $('#volume_chart').removeClass('d-none');
-              $('#forecast_chart').removeClass('d-none');
+              // $('#volume_chart').removeClass('d-none');
+              // $('#forecast_chart').removeClass('d-none');
 
 
               var values = result['myvalues'];
