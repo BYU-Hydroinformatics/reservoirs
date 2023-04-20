@@ -9,7 +9,7 @@ class Reservoirs(TethysAppBase):
 
     name = 'Reservoirs'
     index = 'home'
-    icon = 'reservoirs/images/logo.png'
+    icon = 'reservoirs/images/logo.jpg'
     package = 'reservoirs'
     root_url = 'reservoirs'
     color = '#008080'
