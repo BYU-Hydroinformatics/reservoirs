@@ -25,7 +25,6 @@ from .app import Reservoirs as app
 
 BASE_URL = app.get_custom_setting('Hydroser_Endpoint')
 @login_required()
-
 @controller(name='home', url='reservoirs')
 def home(request):
 
@@ -42,8 +41,8 @@ def home(request):
     try:
         sites_name = [('None', 0)]
         for index, row in df.iterrows():
-            if 'Presa' in row['Station']:
-                info = row['Station'], row['StationName']
+            if 'PRESA' in row['StationName'].upper():
+                info = row['StationName'], row['Station']
                 sites_name.append(info)
 
         variables = SelectInput(
@@ -94,10 +93,11 @@ def GetSites(request, app_workspace):
     # list of longitude and latitude of stations
     for index, row in df.iterrows():
         for index, row2 in df2.iterrows():
-            if 'Presa' in row['Station']:
-                if row['Station'] in row2['Station']:
-                    info1 = row['Station'], row['StationName'], row['Latitude2'], row['Longitude2'], row2['StrtDate'], row2['EndDate']
-                    sites_info.append(info1)
+            if 'PRESA' in row['StationName'].upper():
+                # if row['Station'].upper() == row2['Station'].upper():
+                info1 = row['Station'], row['StationName'], row['Latitude2'], row['Longitude2'], row2['StrtDate'], row2['EndDate']
+                sites_info.append(info1)
+    # breakpoint()
     return_object['siteInfo'] = sites_info
     return JsonResponse(return_object)
 
@@ -112,21 +112,21 @@ def GetInfo(request, app_workspace):
         availability_dict = response2.json()
         df2 = pd.DataFrame.from_dict(availability_dict)
         df = pd.DataFrame.from_dict(stations_dict)
-
+        # breakpoint()
         fullsitecode = request.GET.get("full_code")
         stn_id = request.GET.get("site_name")
         var_id = 'Level4'
-
+        breakpoint()
         df_new = df2[df2['Station'].isin([stn_id])]
-        df_new2 = df[df['Station'].isin([stn_id])]
+        df_new2 = df[df['StationName'].isin([stn_id])]
         min_val = df_new2['MinLevelSta'].tolist()[0]
         max_val = df_new2['MaxLevelSta'].tolist()[0]
 
         date_ini = df_new['StrtDate'].tolist()[0]
         date_end = df_new['EndDate'].tolist()[0]
-
+        print(f'{url_request_base}/data/dailydata?stn_id={fullsitecode}&var_id={var_id}&date_ini={date_ini}&date_end={date_end}')
         response = requests.get(
-            f'{url_request_base}/data/dailydata?stn_id={stn_id}&var_id={var_id}&date_ini={date_ini}&date_end={date_end}')  # Make a GET request to the URL
+            f'{url_request_base}/data/dailydata?stn_id={fullsitecode}&var_id={var_id}&date_ini={date_ini}&date_end={date_end}')  # Make a GET request to the URL
 
         # Print status code (and associated text)
         # Print data returned (parsing as JSON)
@@ -170,15 +170,19 @@ def GetValues(request):
 
         date_ini = request.GET.get("start_date")
         date_end = request.GET.get("end_date")
-        stn_id = request.GET.get("stn_id")
+        site_code = request.GET.get("site_code")
+        site_id = request.GET.get("stn_id")
+
         var_id = 'Level4'
 
-        request_final_url = f'{url_request_base}/data/dailydata?stn_id={stn_id}&var_id={var_id}&date_ini={date_ini}&date_end={date_end}'
+        request_final_url = f'{url_request_base}/data/dailydata?stn_id={site_code}&var_id={var_id}&date_ini={date_ini}&date_end={date_end}'
+        print(request_final_url)
         response = requests.get(request_final_url)
         # breakpoint()
         dailydata_dict = response.json()
         # Parse `response.text` into JSON
         df = pd.DataFrame.from_dict(dailydata_dict)
+        df['Station'] = df['Station'].str.replace(site_code,site_id)
         return_object['myvalues']=df.to_dict('records')
 
         # fullsitecode = request.GET.get("full_code")
@@ -211,7 +215,7 @@ def getForecast(request):
     rating_curves = pd.read_excel(rating_curves_file_path)
 
     site_name = request.GET.get("site_name")
-
+    # breakpoint()
     site_name_only = site_name.split(' ')[-1]
 
     streams_json_file_path = os.path.join(app.get_app_workspace().path, 'streams.json')

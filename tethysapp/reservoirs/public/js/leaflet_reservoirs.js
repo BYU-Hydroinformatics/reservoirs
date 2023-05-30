@@ -123,7 +123,7 @@ var getSitesNow = function(){
 
                     var markerLocation = new L.LatLng(mySites[i][2], mySites[i][3]);
                     var marker = new L.Marker(markerLocation,{icon: damIcon})
-                    marker.bindPopup(mySites[i][0]);
+                    marker.bindPopup(mySites[i][1]);
                     map.addLayer(marker)
                 }
             }
